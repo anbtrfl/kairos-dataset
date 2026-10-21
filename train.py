@@ -8,6 +8,8 @@ from experiments.baseline_model import run as run_baseline
 from experiments.text_and_baseline import run as run_combined
 from experiments.text_svd_baseline import run as run_svd
 from experiments.text_svd_history import run as run_history
+from experiments.text_svd_history_profile import run as run_profile
+from experiments.text_svd_history_profile_text import run as run_profile_text
 
 DATA = Path('/Volumes/caelmbleidd/lab1/dataset/core')
 
@@ -79,5 +81,13 @@ validation = train_pool[
 # svd_metrics = run_svd(train, validation, posts, DATA)
 # print("SVD + baseline:", svd_metrics)
 
-history_metrics = run_history(train, validation, posts, DATA)
-print("SVD + история:", history_metrics)
+# history_metrics = run_history(train, validation, posts, DATA)
+# print("svd history", history_metrics)
+
+# profile_metrics = run_profile(train, validation, posts, DATA)
+# print("svd history profi;e", profile_metrics)
+
+profile_text_metrics = run_profile_text(
+    train, validation, posts, DATA
+)
+print("svd + history +profile text", profile_text_metrics)
