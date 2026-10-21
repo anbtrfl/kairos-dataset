@@ -3,19 +3,11 @@ from kairos.data import load_labels, load_posts
 
 from sklearn.model_selection import train_test_split
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-
-from kairos.metrics import score
-
-from kairos import features
-from kairos.data import load_followers
-from kairos.label import author_level
-from baseline import model as make_baseline
-
 from experiments.text_model import run as run_text
 from experiments.baseline_model import run as run_baseline
 from experiments.text_and_baseline import run as run_combined
+from experiments.text_svd_baseline import run as run_svd
+from experiments.text_svd_history import run as run_history
 
 DATA = Path('/Volumes/caelmbleidd/lab1/dataset/core')
 
@@ -81,5 +73,11 @@ validation = train_pool[
 # baseline_metrics = run_baseline(train, validation, posts, DATA)
 # print("baseline - ", baseline_metrics)
 
-combined_metrics = run_combined(train, validation, posts, DATA)
-print("combined", combined_metrics)
+# combined_metrics = run_combined(train, validation, posts, DATA)
+# print("combined", combined_metrics)
+
+# svd_metrics = run_svd(train, validation, posts, DATA)
+# print("SVD + baseline:", svd_metrics)
+
+history_metrics = run_history(train, validation, posts, DATA)
+print("SVD + история:", history_metrics)
