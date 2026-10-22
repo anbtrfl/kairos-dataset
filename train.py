@@ -10,6 +10,9 @@ from experiments.text_svd_baseline import run as run_svd
 from experiments.text_svd_history import run as run_history
 from experiments.text_svd_history_profile import run as run_profile
 from experiments.text_svd_history_profile_text import run as run_profile_text
+from experiments.text_svd_recent_history import run as run_recent
+from experiments.text_embeddings import run as run_embeddings
+from experiments.text_embeddings_profile import run as run_embedding_profile
 
 DATA = Path('/Volumes/caelmbleidd/lab1/dataset/core')
 
@@ -87,7 +90,16 @@ validation = train_pool[
 # profile_metrics = run_profile(train, validation, posts, DATA)
 # print("svd history profi;e", profile_metrics)
 
-profile_text_metrics = run_profile_text(
-    train, validation, posts, DATA
-)
-print("svd + history +profile text", profile_text_metrics)
+# profile_text_metrics = run_profile_text(
+#     train, validation, posts, DATA
+# )
+# print("svd + history +profile text", profile_text_metrics)
+
+# recent_metrics = run_recent(train, validation, posts, DATA)
+# print("with recent history", recent_metrics)
+
+# embedding_metrics = run_embeddings(train, validation, posts, DATA)
+# print(" embeddings", embedding_metrics)
+
+metrics = run_embedding_profile(train, validation, posts, DATA)
+print("E5 + profile", metrics)
