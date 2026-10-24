@@ -18,6 +18,7 @@ from experiments.text_with_video import run as run_video
 from experiments.text_with_reposts import run as run_reposts
 from experiments.text_with_hook import run as run_hook
 from experiments.text_with_hook_embeddings import run as run_hook_e5
+from experiments.text_with_author_style import run as run_author_style
 
 DATA = Path('/Volumes/caelmbleidd/lab1/dataset/core')
 
@@ -120,5 +121,8 @@ validation = train_pool[
 
 # hook_metrics = run_hook(train, validation, posts, DATA)
 # print("hooks", hook_metrics)
-metrics = run_hook_e5(train, validation, posts, DATA)
-print("hook e5", metrics)
+# metrics = run_hook_e5(train, validation, posts, DATA)
+# print("hook e5", metrics)
+
+metrics = run_author_style(train, validation, posts, DATA)
+print("hook e5 + author style ", metrics)
