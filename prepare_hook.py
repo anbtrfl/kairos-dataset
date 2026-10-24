@@ -56,9 +56,9 @@ def main():
             opening_definition=np.array(OPENING_DEFINITION),
         )
     temporary.replace(OUTPUT)
-    print('shape', vectors.shape)
-    print(f'time - {(time.perf_counter() - started) / 60:.1f} min.')
-    print('saved', OUTPUT)
+    # print('shape', vectors.shape)
+    # print(f'time - {(time.perf_counter() - started) / 60:.1f} min.')
+    # print('saved', OUTPUT)
 
 
 if __name__ == '__main__':
