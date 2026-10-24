@@ -20,6 +20,7 @@ from experiments.text_with_hook import run as run_hook
 from experiments.text_with_hook_embeddings import run as run_hook_e5
 from experiments.text_with_author_style import run as run_author_style
 from experiments.text_with_author_style_images import run as run_author_style_images
+from experiments.text_with_reshared_text import run as run_reshared_text
 
 DATA = Path('/Volumes/caelmbleidd/lab1/dataset/core')
 
@@ -128,5 +129,8 @@ validation = train_pool[
 # metrics = run_author_style(train, validation, posts, DATA)
 # print("hook e5 + author style ", metrics)
 
-metrics = run_author_style_images(train, validation, posts, DATA)
-print("Hook E5 + author style + images:", metrics)
+# metrics = run_author_style_images(train, validation, posts, DATA)
+# print("Hook E5 + author style + images:", metrics)
+
+metrics = run_reshared_text(train, validation, posts, DATA)
+print("+ reshared text", metrics)
