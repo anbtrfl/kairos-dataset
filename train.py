@@ -13,6 +13,11 @@ from experiments.text_svd_history_profile_text import run as run_profile_text
 from experiments.text_svd_recent_history import run as run_recent
 from experiments.text_embeddings import run as run_embeddings
 from experiments.text_embeddings_profile import run as run_embedding_profile
+from experiments.text_with_images import run as run_images
+from experiments.text_with_video import run as run_video
+from experiments.text_with_reposts import run as run_reposts
+from experiments.text_with_hook import run as run_hook
+from experiments.text_with_hook_embeddings import run as run_hook_e5
 
 DATA = Path('/Volumes/caelmbleidd/lab1/dataset/core')
 
@@ -101,5 +106,19 @@ validation = train_pool[
 # embedding_metrics = run_embeddings(train, validation, posts, DATA)
 # print(" embeddings", embedding_metrics)
 
-metrics = run_embedding_profile(train, validation, posts, DATA)
-print("E5 + profile", metrics)
+# metrics = run_embedding_profile(train, validation, posts, DATA)
+# print("E5 + profile", metrics)
+
+# image_metrics = run_images(train, validation, posts, DATA)
+# print("with images ", image_metrics)
+
+# video_metrics = run_video(train, validation, posts, DATA)
+# print("VIDEO", video_metrics)
+
+# repost_metrics = run_reposts(train, validation, posts, DATA)
+# print("repost ", repost_metrics)
+
+# hook_metrics = run_hook(train, validation, posts, DATA)
+# print("hooks", hook_metrics)
+metrics = run_hook_e5(train, validation, posts, DATA)
+print("hook e5", metrics)
