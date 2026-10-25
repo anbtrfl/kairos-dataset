@@ -1,8 +1,13 @@
 from pathlib import Path
+import json
+
+import numpy as np
+import pandas as pd
 
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.compose import ColumnTransformer
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, normalize
 
 from baseline import model as make_baseline
@@ -10,44 +15,12 @@ from kairos import features
 from kairos.data import load_followers
 from kairos.label import author_level
 from kairos.metrics import score
-import pandas as pd
-import numpy as np
-import json
-
-IMAGE_CACHE = Path(
-    "/Users/ekaterina/kairos-dataset/results/media_clip_v1/images_by_post.npz"
-)
-
-
-def load_image_features(cache_path):
-    with np.load(cache_path, allow_pickle=False) as saved:
-        authors = saved["author"]
-        posts = saved["post"]
-        vectors = saved["vectors"]
-        expected = saved["expected_count"]
-        loaded = saved["loaded_count"]
-
-
-    columns = [f"image_clip_{number}" for number in range(512)]
-    result = pd.DataFrame(vectors, columns=columns)
-    result["author"] = authors
-    result["post"] = posts
-    result["has_image"] = (expected > 0).astype(int)
-    result["image_selected_count"] = expected
-    result["image_loaded_count"] = loaded
-    result["has_image_vector"] = (loaded > 0).astype(int)
-
-    columns += [
-        "has_image",
-        "image_selected_count",
-        "image_loaded_count",
-        "has_image_vector",
-    ]
-    return result, columns
-
 
 HOOK_CACHE = Path(
     '/Users/ekaterina/kairos-dataset/results/embeddings/hooks_e5_small.npz'
+)
+TEST_HOOK_CACHE = Path(
+    '/Users/ekaterina/kairos-dataset/results/embeddings/hooks_e5_small_test.npz'
 )
 
 
@@ -57,7 +30,6 @@ def load_hook_embeddings(cache_path):
         posts = saved['post']
         vectors = saved['vectors']
         has_text = saved['has_text']
-
 
     columns = [f'hook_e5_{number}' for number in range(384)]
     result = pd.DataFrame(vectors, columns=columns)
@@ -94,7 +66,6 @@ def load_repost_features(data_dir, post_keys):
                 "reshared_text": shared_text,
                 "reshared_has_text": int(bool(shared_text.strip())),
             })
-
 
     return pd.DataFrame(rows, columns=[
         "author", "post", "reposted_flag", "has_reshared_post",
@@ -198,22 +169,16 @@ def same_type_history_features(posts):
     return result
 
 
-def run(train, validation, posts, data_dir):
-    image_features, image_columns = load_image_features(IMAGE_CACHE)
-
+def run(train, validation, posts, data_dir, use_test_hooks=False):
     hook_features, hook_columns = load_hook_embeddings(HOOK_CACHE)
+    if use_test_hooks:
+        extra_hooks, _ = load_hook_embeddings(TEST_HOOK_CACHE)
+        hook_features = pd.concat([hook_features, extra_hooks], ignore_index=True)
 
     post_keys = pd.concat([
         train[["author", "post"]],
         validation[["author", "post"]],
     ], ignore_index=True)
-    coverage = post_keys.merge(
-        hook_features[['author', 'post']],
-        on=['author', 'post'], how='left', indicator=True,
-        validate='one_to_one',
-    )
-    if coverage['_merge'].ne('both').any():
-        raise ValueError('Some posts have no hook embedding cache entry.')
     repost_features = load_repost_features(data_dir, post_keys)
     repost_columns = ["reposted_flag", "has_reshared_post"]
 
@@ -310,7 +275,6 @@ def run(train, validation, posts, data_dir):
         [profile_train_features, profile_val_features],
         ignore_index=True,
     )
-
 
     vectorizer = TfidfVectorizer(
         max_features=30000,
@@ -418,7 +382,6 @@ def run(train, validation, posts, data_dir):
         "similar_past_result",
     ]
 
-
     baseline_features = features.build(
         levelled,
         load_followers(data_dir),
@@ -432,16 +395,6 @@ def run(train, validation, posts, data_dir):
         on=["author", "post"],
         how="left",
         validate="one_to_one",
-    )
-
-    baseline_features = baseline_features.merge(
-        image_features,
-        on=["author", "post"],
-        how="left",
-        validate="one_to_one",
-    )
-    baseline_features = baseline_features.fillna(
-        {column: 0 for column in image_columns}
     )
 
     baseline_features = baseline_features.merge(
@@ -492,7 +445,6 @@ def run(train, validation, posts, data_dir):
         how="left",
     )
 
-
     text_columns = [
         f"text_svd_{number}" for number in range(100)
     ]
@@ -533,7 +485,6 @@ def run(train, validation, posts, data_dir):
         + repost_columns
         + hook_columns
         + STYLE_COLUMNS
-        + image_columns
     )
 
     model = make_baseline()
@@ -561,9 +512,18 @@ def run(train, validation, posts, data_dir):
         ])
     )
 
-
     model.fit(features_train, train["label"])
 
     predictions = model.predict(features_val)
+
+    print(classification_report(
+        validation["label"], predictions,
+        labels=[0, 1, 2],
+        target_names=["below", "typical", "above"],
+        digits=4,
+        zero_division=0,
+    ))
+    # print("сonfusion matrix: rows = true classes, columns = predicted classes")
+    # print(confusion_matrix(validation["label"], predictions, labels=[0, 1, 2]))
 
     return score(validation["label"], predictions)

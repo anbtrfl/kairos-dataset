@@ -22,7 +22,7 @@ from experiments.text_with_author_style import run as run_author_style
 from experiments.text_with_author_style_images import run as run_author_style_images
 from experiments.text_with_reshared_text import run as run_reshared_text
 from experiments.compare_classifiers import run as run_classifiers
-from experiments.text_with_same_type_history import run as run_same_type_history
+from model import run as run_model
 
 DATA = Path('/Volumes/caelmbleidd/lab1/dataset/core')
 
@@ -140,5 +140,8 @@ validation = train_pool[
 # comparison = run_classifiers(train, validation, posts, DATA)
 # print("compare classifiers", comparison)
 
-metrics = run_same_type_history(train, validation, posts, DATA)
-print("reshared text + type history", metrics)
+# metrics = run_model(train, validation, posts, DATA)
+# print("validation:", metrics)
+
+metrics = run_model(train_pool, test, posts, DATA, use_test_hooks=True)
+print("test:", metrics)
